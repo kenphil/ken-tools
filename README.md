@@ -51,3 +51,7 @@ kt.throttle(func, wait, type)
 @param wait 秒
 @param type 1 表时间戳版，2 表定时器版
 节流
+
+kt.detect(ua)
+@param ua userAgent
+检查浏览器

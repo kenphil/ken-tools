@@ -1,7 +1,7 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? 
-  module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) : (global.Qarticles = factory())
+  typeof exports === 'object' && typeof module !== 'undefined' ?
+    module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) : (global.Qarticles = factory())
 
 })(this, function () {
   class Util {
@@ -185,9 +185,9 @@
      * @param type 1 表时间戳版，2 表定时器版
      */
     throttle(func, wait, type) {
-      let previous =0
+      let previous = 0
       let timeout
-      
+
       return function () {
         let context = this;
         let args = arguments;
@@ -206,6 +206,66 @@
             }, wait)
           }
         }
+      }
+    }
+
+    /**
+     * 检查浏览器，照抄echarts的
+     */
+    detect(ua) {
+      let os = {}
+      let browser = {}
+
+      let firefox = ua.match(/Firefox\/([\d.]+)/)
+      let ie = ua.match(/MSIE\s([\d.]+)/) || ua.match(/Trident\/.+?rv:(([\d.]+))/)
+      let edge = ua.match(/Edge\/([\d.]+)/) // IE 12 and 12+
+      let wechat = (/micromessenger/i).test(ua)
+
+      if (firefox) {
+        browser.firefox = true;
+        browser.version = firefox[1];
+      }
+
+      if (ie) {
+        browser.ie = true;
+        browser.version = ie[1];
+      }
+
+      if (edge) {
+        browser.edge = true;
+        browser.version = edge[1];
+      }
+
+      if (weChat) {
+        browser.weChat = true;
+      }
+
+      return {
+        browser: browser,
+        os: os,
+        node: false,
+        // 原生canvas支持，改极端点了
+        // canvasSupported : !(browser.ie && parseFloat(browser.version) < 9)
+        canvasSupported: !!document.createElement('canvas').getContext,
+        svgSupported: typeof SVGRect !== 'undefined',
+        // works on most browsers
+        // IE10/11 does not support touch event, and MS Edge supports them but not by
+        // default, so we dont check navigator.maxTouchPoints for them here.
+        touchEventsSupported: 'ontouchstart' in window && !browser.ie && !browser.edge,
+        // <http://caniuse.com/#search=pointer%20event>.
+        pointerEventsSupported:
+          // (1) Firefox supports pointer but not by default, only MS browsers are reliable on pointer
+          // events currently. So we dont use that on other browsers unless tested sufficiently.
+          // For example, in iOS 13 Mobile Chromium 78, if the touching behavior starts page
+          // scroll, the `pointermove` event can not be fired any more. That will break some
+          // features like "pan horizontally to move something and pan vertically to page scroll".
+          // The horizontal pan probably be interrupted by the casually triggered page scroll.
+          // (2) Although IE 10 supports pointer event, it use old style and is different from the
+          // standard. So we exclude that. (IE 10 is hardly used on touch device)
+          'onpointerdown' in window
+          && (browser.edge || (browser.ie && browser.version >= 11)),
+        // passiveSupported: detectPassiveSupport()
+        domSupported: typeof document !== 'undefined'
       }
     }
   }
